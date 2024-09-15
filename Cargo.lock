@@ -184,6 +184,8 @@ version = "0.1.0"
 dependencies = [
  "failure",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
