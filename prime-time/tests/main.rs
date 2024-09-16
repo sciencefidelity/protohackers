@@ -1,28 +1,33 @@
-use smoke_test::server::run;
+use prime_time::server::{run, Request, Response};
 use std::env;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
 #[tokio::test]
-async fn smoke_test_works() {
-    let port = env::var("TCP_PORT").unwrap();
+async fn is_prime_works() {
+    let port = env::var("TCP_PORT").unwrap_or_else(|_| "8080".to_owned());
     let address = format!("localhost:{port}");
     let application = run();
     tokio::spawn(application);
-    tokio::join!(
-        send_request(b"hello\n", &address),
-        send_request(b"world\n", &address),
-        send_request(b"await\n", &address),
-        send_request(b"async\n", &address),
-        send_request(b"until\n", &address)
-    );
+    let request = Request::new("isPrime", 13.0);
+    let mut bytes = Vec::new();
+    serde_json::to_writer(&mut bytes, &request).unwrap();
+    bytes.push(b'\n');
+    send_request(&bytes, &address).await;
 }
 
-async fn send_request(msg: &[u8; 6], address: &str) {
+async fn send_request(msg: &[u8], address: &str) {
     let mut stream = TcpStream::connect(address).await.unwrap();
-    let mut response = [0; 6];
     let result = stream.write_all(msg).await;
     assert!(result.is_ok());
+
+    let mut response = Vec::new();
     stream.read(&mut response).await.unwrap();
-    assert_eq!(&response, msg);
+
+    let expected = Response::new("isPrime", true);
+    let mut bytes = Vec::new();
+    serde_json::to_writer(&mut bytes, &expected).unwrap();
+    bytes.push(b'\n');
+
+    assert_eq!(response, bytes);
 }

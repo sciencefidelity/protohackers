@@ -12,7 +12,6 @@ pub async fn run() -> Result<(), failure::Error> {
     Ok(())
 }
 
-/// Listen for TCP connections on the specified socket address.
 #[instrument]
 async fn serve(address: &str) -> Result<(), failure::Error> {
     event!(Level::INFO, "listening on {address}");
@@ -27,7 +26,6 @@ async fn serve(address: &str) -> Result<(), failure::Error> {
     }
 }
 
-/// Wait for data(message) from the client and return the same content back.
 #[instrument]
 async fn process(mut stream: TcpStream) -> Result<(), failure::Error> {
     event!(Level::DEBUG, "handling data from {}", stream.peer_addr()?);

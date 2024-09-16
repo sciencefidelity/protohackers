@@ -1,7 +1,34 @@
-use std::str;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use crate::integer::Integer;
+use serde::{Deserialize, Serialize};
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{TcpListener, TcpStream};
 use tracing::{event, instrument, Level};
+
+pub const METHOD: &str = "isPrime";
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Request<'a> {
+    method: &'a str,
+    number: f64,
+}
+
+impl<'a> Request<'a> {
+    pub fn new(method: &'a str, number: f64) -> Self {
+        Self { method, number }
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct Response<'a> {
+    method: &'a str,
+    prime: bool,
+}
+
+impl<'a> Response<'a> {
+    pub fn new(method: &'a str, prime: bool) -> Self {
+        Self { method, prime }
+    }
+}
 
 #[instrument]
 pub async fn run() -> Result<(), failure::Error> {
@@ -12,7 +39,6 @@ pub async fn run() -> Result<(), failure::Error> {
     Ok(())
 }
 
-/// Listen for TCP connections on the specified socket address.
 #[instrument]
 async fn serve(address: &str) -> Result<(), failure::Error> {
     event!(Level::INFO, "listening on {address}");
@@ -27,17 +53,24 @@ async fn serve(address: &str) -> Result<(), failure::Error> {
     }
 }
 
-/// Wait for data(message) from the client and return the same content back.
 #[instrument]
 async fn process(mut stream: TcpStream) -> Result<(), failure::Error> {
     event!(Level::DEBUG, "handling data from {}", stream.peer_addr()?);
-    let mut buffer = [0; 1024];
-    loop {
-        let nbytes = stream.read(&mut buffer).await?;
-        if nbytes == 0 {
-            event!(Level::DEBUG, "connection closed");
-            return Ok(());
-        }
-        stream.write_all(&buffer[..nbytes]).await?;
+    let (reader, mut writer) = stream.split();
+    let reader = BufReader::new(reader);
+    let mut lines = reader.lines();
+    while let Some(line) = lines.next_line().await? {
+        let response: Response = match serde_json::from_str::<Request>(&line) {
+            Ok(request) if request.method == METHOD => {
+                Response::new(METHOD, request.number.is_prime())
+            }
+            _ => Response::new("MALFORMED", false),
+        };
+        event!(Level::DEBUG, "response: {response:?}");
+        let mut bytes = Vec::new();
+        serde_json::to_writer(&mut bytes, &response)?;
+        bytes.push(b'\n');
+        writer.write_all(&bytes).await?;
     }
+    Ok(())
 }
