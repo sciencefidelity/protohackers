@@ -1,5 +1,5 @@
-use prime_time::server::run;
-use prime_time::telemetry::init_subscriber;
+use means_to_an_end::server::run;
+use means_to_an_end::telemetry::init_subscriber;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

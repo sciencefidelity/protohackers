@@ -6,7 +6,7 @@ use tracing::{event, instrument, Level};
 #[instrument]
 pub async fn run() -> anyhow::Result<()> {
     event!(Level::INFO, "starting up");
-    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_owned());
+    let port = std::env::var("TCP_PORT").unwrap_or_else(|_| "8080".to_owned());
     let address = format!("0.0.0.0:{port}");
     serve(&address).await?;
     Ok(())

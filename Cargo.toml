@@ -25,6 +25,6 @@ panic = "abort"
 strip = "symbols"
 
 [workspace]
-members = ["prime-time", "smoke-test"]
+members = [ "means-to-an-end","prime-time", "smoke-test"]
 
 [dependencies]

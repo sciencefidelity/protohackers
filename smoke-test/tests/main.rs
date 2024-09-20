@@ -5,7 +5,7 @@ use tokio::net::TcpStream;
 
 #[tokio::test]
 async fn smoke_test_works() {
-    let port = env::var("TCP_PORT").unwrap();
+    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_owned());
     let address = format!("localhost:{port}");
     let application = run();
     tokio::spawn(application);

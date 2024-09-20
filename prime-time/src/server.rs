@@ -31,16 +31,16 @@ impl<'a> Response<'a> {
 }
 
 #[instrument]
-pub async fn run() -> Result<(), failure::Error> {
+pub async fn run() -> anyhow::Result<()> {
     event!(Level::INFO, "starting up");
-    let port = std::env::var("TCP_PORT").unwrap_or_else(|_| "8080".to_owned());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_owned());
     let address = format!("0.0.0.0:{port}");
     serve(&address).await?;
     Ok(())
 }
 
 #[instrument]
-async fn serve(address: &str) -> Result<(), failure::Error> {
+async fn serve(address: &str) -> anyhow::Result<()> {
     event!(Level::INFO, "listening on {address}");
     let listener = TcpListener::bind(address).await?;
     loop {
@@ -54,7 +54,7 @@ async fn serve(address: &str) -> Result<(), failure::Error> {
 }
 
 #[instrument]
-async fn process(mut stream: TcpStream) -> Result<(), failure::Error> {
+async fn process(mut stream: TcpStream) -> anyhow::Result<()> {
     event!(Level::DEBUG, "handling data from {}", stream.peer_addr()?);
     let (reader, mut writer) = stream.split();
     let reader = BufReader::new(reader);
