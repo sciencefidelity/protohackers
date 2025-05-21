@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)]
 use smoke_test::server::run;
 use std::env;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -23,6 +24,6 @@ async fn send_request(msg: &[u8; 6], address: &str) {
     let mut response = [0; 6];
     let result = stream.write_all(msg).await;
     assert!(result.is_ok());
-    stream.read(&mut response).await.unwrap();
+    stream.read_exact(&mut response).await.unwrap();
     assert_eq!(&response, msg);
 }

@@ -1,8 +1,5 @@
 use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
-/// # Panics
-///
-/// Will panic if setting default subscriber fails.
 pub fn init_subscriber() {
     let subscriber = tracing_subscriber::registry()
         .with(fmt::layer())

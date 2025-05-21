@@ -1,17 +1,20 @@
-[package]
-name = "protohackers"
+[workspace]
+members = ["crates/means-to-an-end", "crates/prime-time", "crates/smoke-test"]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Matt Cook <matt@mattcook.dev>"]
-description = ""
+description = "Protohackers solutions"
 readme = "README.md"
 repository = "https://github.com/sciencefidelity/protohackers"
 license = "MIT or Apache-2.0"
 
-[lints.rust]
+[workspace.lints.rust]
 unsafe_code = "forbid"
 
-[lints.clippy]
+[workspace.lints.clippy]
 enum_glob_use = "deny"
 pedantic = { level = "deny", priority = 1 }
 nursery = { level = "deny", priority = 2 }
@@ -24,7 +27,4 @@ codegen-units = 1
 panic = "abort"
 strip = "symbols"
 
-[workspace]
-members = [ "means-to-an-end","prime-time", "smoke-test"]
-
-[dependencies]
+[workspace.dependencies]
