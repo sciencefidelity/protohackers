@@ -4,7 +4,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tracing::{event, instrument, Level};
 
 #[instrument]
-pub async fn run() -> anyhow::Result<()> {
+pub async fn run() -> std::io::Result<()> {
     event!(Level::INFO, "starting up");
     let port = std::env::var("TCP_PORT").unwrap_or_else(|_| "8080".to_owned());
     let address = format!("0.0.0.0:{port}");
@@ -13,7 +13,7 @@ pub async fn run() -> anyhow::Result<()> {
 }
 
 #[instrument]
-async fn serve(address: &str) -> anyhow::Result<()> {
+async fn serve(address: &str) -> std::io::Result<()> {
     event!(Level::INFO, "listening on {address}");
     let listener = TcpListener::bind(address).await?;
     loop {
@@ -27,7 +27,7 @@ async fn serve(address: &str) -> anyhow::Result<()> {
 }
 
 #[instrument]
-async fn process(mut stream: TcpStream) -> anyhow::Result<()> {
+async fn process(mut stream: TcpStream) -> std::io::Result<()> {
     event!(Level::DEBUG, "handling data from {}", stream.peer_addr()?);
     let mut buffer = [0; 1024];
     loop {

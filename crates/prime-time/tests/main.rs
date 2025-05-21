@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)]
 use prime_time::server::{run, Request, Response};
 use std::env;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -22,7 +23,7 @@ async fn send_request(msg: &[u8], address: &str) {
     assert!(result.is_ok());
 
     let mut response = Vec::new();
-    stream.read(&mut response).await.unwrap();
+    stream.read_exact(&mut response).await.unwrap();
 
     let expected = Response::new("isPrime", true);
     let mut bytes = Vec::new();

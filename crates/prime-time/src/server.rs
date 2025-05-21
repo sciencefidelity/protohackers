@@ -13,7 +13,8 @@ pub struct Request<'a> {
 }
 
 impl<'a> Request<'a> {
-    pub fn new(method: &'a str, number: f64) -> Self {
+    #[must_use]
+    pub const fn new(method: &'a str, number: f64) -> Self {
         Self { method, number }
     }
 }
@@ -25,13 +26,14 @@ pub struct Response<'a> {
 }
 
 impl<'a> Response<'a> {
-    pub fn new(method: &'a str, prime: bool) -> Self {
+    #[must_use]
+    pub const fn new(method: &'a str, prime: bool) -> Self {
         Self { method, prime }
     }
 }
 
 #[instrument]
-pub async fn run() -> anyhow::Result<()> {
+pub async fn run() -> std::io::Result<()> {
     event!(Level::INFO, "starting up");
     let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_owned());
     let address = format!("0.0.0.0:{port}");
@@ -40,7 +42,7 @@ pub async fn run() -> anyhow::Result<()> {
 }
 
 #[instrument]
-async fn serve(address: &str) -> anyhow::Result<()> {
+async fn serve(address: &str) -> std::io::Result<()> {
     event!(Level::INFO, "listening on {address}");
     let listener = TcpListener::bind(address).await?;
     loop {
@@ -54,7 +56,7 @@ async fn serve(address: &str) -> anyhow::Result<()> {
 }
 
 #[instrument]
-async fn process(mut stream: TcpStream) -> anyhow::Result<()> {
+async fn process(mut stream: TcpStream) -> std::io::Result<()> {
     event!(Level::DEBUG, "handling data from {}", stream.peer_addr()?);
     let (reader, mut writer) = stream.split();
     let reader = BufReader::new(reader);
@@ -62,7 +64,7 @@ async fn process(mut stream: TcpStream) -> anyhow::Result<()> {
     while let Some(line) = lines.next_line().await? {
         let response: Response = match serde_json::from_str::<Request>(&line) {
             Ok(request) if request.method == METHOD => {
-                Response::new(METHOD, request.number.is_prime())
+                Response::new(METHOD, request.number.check_prime())
             }
             _ => Response::new("MALFORMED", false),
         };
