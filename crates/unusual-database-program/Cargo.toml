@@ -1,0 +1,19 @@
+[package]
+name = "unusual-database-program"
+version = "0.1.0"
+repository.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dependencies.tokio]
+version = "1"
+features = ["io-util", "macros", "net", "rt-multi-thread"]

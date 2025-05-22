@@ -1,5 +1,10 @@
 [workspace]
-members = ["crates/means-to-an-end", "crates/prime-time", "crates/smoke-test"]
+members = [
+  "crates/means-to-an-end",
+  "crates/prime-time",
+  "crates/smoke-test",
+  "crates/unusual-database-program",
+]
 resolver = "2"
 
 [workspace.package]
