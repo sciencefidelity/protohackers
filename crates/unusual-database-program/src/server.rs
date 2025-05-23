@@ -36,11 +36,11 @@ pub async fn serve(address: &str) -> anyhow::Result<()> {
         if command.contains("=") {
             let i = command.find("=").expect("insert missing equals");
             database.insert(command[..i].to_string(), command[i + 1..].to_string());
-        } else {
-            let value = database.get(command).map_or("", |val| val);
-            socket
-                .send_to(format!("{command}={value}").as_bytes(), &src)
-                .await?;
+            continue;
         }
+        let value = database.get(command).map_or("", |val| val);
+        socket
+            .send_to(format!("{command}={value}").as_bytes(), &src)
+            .await?;
     }
 }
